@@ -1,0 +1,39 @@
+version: "3.0"
+services:
+    php:
+        build: ./sampleapi
+        container_name: image-php
+        ports: 
+            - "8001:80"
+        volumes:
+            - ./sampleapi:/var/www/html/
+        env_file:
+            - ./.env
+        links:
+            - db
+
+    db:
+        image: mysql:8.0
+        container_name: image-mysql
+        ports: 
+            - "3300:3306"
+        command: --default-authentication-plugin=mysql_native_password
+        environment:
+            MYSQL_DATABASE: ${DB_NAME}
+            MYSQL_USER: ${DB_USER}
+            MYSQL_ROOT_PASSWORD: ${DB_ROOT_PW}
+            MYSQL_PASSWORD: ${DB_PW}
+        volumes:
+            - ./dump:/docker-entrypoint-initdb.d
+            - ./Data:/var/lib/mysql
+
+    react:
+      build: ./crudapplication
+      ports: 
+          - 3000:3000
+      container_name: image-react
+      volumes:
+          - ./crudapplication:/crud
+
+volumes:
+    persistent:
